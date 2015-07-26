@@ -1,0 +1,75 @@
+---
+title: "Regression Analysis on MPG and Transmission"
+author: "Yosuke Ishizaka"
+output: html_document
+---
+##Executive Summary:
+The goal of this project is to answer some questions using regression models and exploratory data analyses.  We are particularly interested in answering the following questions:
+
+* Is an automatic or manual transmission better for MPG?
+
+* Quantify the MPG difference between automatic and manual transmissions.
+
+We are going to use the `mtcars` data set to answer the questions.
+
+##Exploratory Data Analyses:
+Consider the `mtcars` data set.  We'll start by looking at dimensions and variable names.
+```{r, echo=FALSE}
+data(mtcars)
+dim(mtcars)
+names(mtcars)
+```
+Look at the first 6 rows of data set.
+```{r, echo=FALSE}
+head(mtcars)
+```
+There exists 32 rows of car models with 11 variables.  In our analysis, we'll fit a linear model with MPG as the outcome and other 10 variables as the predictive variables. We'll start by fitting a model with all variables.
+```{r, echo=FALSE}
+summary(lm(mpg~.-1, data=mtcars))$coef
+```
+Fitting a model with 10 predictive variables results in no significant P-values (less than 0.05).  We eliminate some regressors to determine a model with better fit.  After eliminating regressors from the order of high P-values, I end up with a model with wt, qsec and am as significant regressors.  Here's the coefficient estimates and R-squared.
+```{r, echo=FALSE}
+fit <- lm(mpg~wt+qsec+factor(am)-1, data=mtcars)
+summary(fit)$coef
+summary(fit)$r.squared
+```
+To determine if I should include any interaction term, I check for correlation between Transmission (am) and each regressors.
+```{r, echo=FALSE}
+cor(mtcars["am"], mtcars[c("wt", "qsec")])
+```
+Weight (wt) has -0.69 correlation to Transmission (am).  This means that there is a negative correlation, so I include the interaction term am*wt.  Here's the coefficient estimates and R-squared.
+```{r, echo=FALSE}
+fit <- lm(mpg~wt+qsec+factor(am)+wt*factor(am)-1, data=mtcars)
+summary(fit)$coef
+summary(fit)$r.squared
+```
+Using this model to answer the first question, "Is an automatic or manual transmission better for MPG?", compare the coefficients of factor(am)0 and factor(am)1.  Factor(am)0 is a factor for automatic transmission with coefficent = 9.723.  This means that for automatic transmission, your MPG gain is 9.723mpg.  Factor(am)1 is a factor for manual transmission with coeficcient = 23.801.  This means that for manual transmission, your MPG gain is 23.801mpg.  Clearly, manual transmission is better for MPG by a difference of 14.078mpg.
+
+##Residuals Diagnostics:
+Residuals should be uncorrelated with the fit and independent and nearly identically distributed with mean zero.  We'll look at the plot of residuals against fitted values.  We see a few outliers that may be influential.    (Appendix: Figure 1)
+
+```{r, figure1, echo=FALSE, fig.show='hide'}
+plot(fit, which=1)
+```
+
+We'll look at the Q-Q plot next.  We see that residuals are along the line of normality.  Notice we have the same outliers as the previous plot.  (Appendix: Figure 2)
+
+```{r, figure2, echo=FALSE, fig.show='hide'}
+plot(fit, which=2)
+```
+
+Next, we find influence of the outliers on coefficients.  Outliers are Datsun 710, Fiat 128 and Mercedes 240D.  Influence on coefficients are higher for the outliers, but not dramatically high.  My decision is to leave the outliers in the model because looking also at the plots, they do not seem to influence the normality and correlation within the fit.
+```{r, echo=FALSE}
+round(dfbetas(fit)[c("Datsun 710", "Fiat 128", "Merc 240D"),], 3)
+head(round(dfbetas(fit), 3), 2)
+```
+
+
+##Appendix:
+Figure 1
+```{r, figure1, echo=FALSE}
+```
+
+Figure2
+```{r, figure2, echo=FALSE}
+```
