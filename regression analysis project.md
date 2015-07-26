@@ -108,8 +108,20 @@ Next, we find influence of the outliers on coefficients.  Outliers are Datsun 71
 ## Mazda RX4 Wag 0.003 0.009      -0.008      -0.016          0.025
 ```
 
+##Conclusion:
+Finally, we look at the uncertainty in parameters.  We have 95% confidence that parameters are within the interval.
+
+```
+##                     2.5 %    97.5 %
+## wt             -4.3031019 -1.569960
+## qsec            0.4998811  1.534066
+## factor(am)0    -2.3807791 21.826884
+## factor(am)1    11.3338666 36.271094
+## wt:factor(am)1 -6.5970316 -1.685721
+```
 
 ##Appendix:
+
 Figure 1
 ![plot of chunk figure1](figure/figure1-1.png) 
 

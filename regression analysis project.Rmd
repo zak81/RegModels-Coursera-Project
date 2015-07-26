@@ -64,12 +64,18 @@ round(dfbetas(fit)[c("Datsun 710", "Fiat 128", "Merc 240D"),], 3)
 head(round(dfbetas(fit), 3), 2)
 ```
 
+##Conclusion:
+Finally, we look at the uncertainty in parameters.  We have 95% confidence that parameters are within the interval.
+```{r, echo=FALSE}
+confint(fit)
+```
 
 ##Appendix:
+
 Figure 1
-```{r, figure1, echo=FALSE}
+```{r, figure1, fig.width=8, fig.height=4, echo=FALSE}
 ```
 
 Figure2
-```{r, figure2, echo=FALSE}
+```{r, figure2, fig.width=8, fig.height=4, echo=FALSE}
 ```
