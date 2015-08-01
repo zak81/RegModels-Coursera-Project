@@ -171,7 +171,7 @@ The goal of this project is to answer some questions using regression models and
 <li><p>Quantify the MPG difference between automatic and manual transmissions.</p></li>
 </ul>
 
-<p>We are going to use the <code>mtcars</code> data set to answer the questions.</p>
+<p>In this analysis, we&#39;ve determined that manual transmission achieves higher MPG.</p>
 
 <p>##Exploratory Data Analyses:
 Consider the <code>mtcars</code> data set.  We&#39;ll start by looking at dimensions and variable names.</p>
@@ -194,7 +194,7 @@ Consider the <code>mtcars</code> data set.  We&#39;ll start by looking at dimens
 ## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1
 </code></pre>
 
-<p>There exists 32 rows of car models with 11 variables.  In our analysis, we&#39;ll fit a linear model with MPG as the outcome and other 10 variables as the predictive variables. We&#39;ll start by fitting a model with all variables.</p>
+<p>There exists 32 rows of car models with 11 variables.  We&#39;ll fit a linear model with MPG as the outcome and all remaining variables as predictive variables.</p>
 
 <pre><code>##         Estimate Std. Error     t value   Pr(&gt;|t|)
 ## cyl   0.35082641 0.76292423  0.45984438 0.65014009
@@ -209,7 +209,7 @@ Consider the <code>mtcars</code> data set.  We&#39;ll start by looking at dimens
 ## carb -0.26321386 0.81235653 -0.32401273 0.74898869
 </code></pre>
 
-<p>Fitting a model with 10 predictive variables results in no significant P-values (less than 0.05).  We eliminate some regressors to determine a model with better fit.  After eliminating regressors from the order of high P-values, I end up with a model with wt, qsec and am as significant regressors.  Here&#39;s the coefficient estimates and R-squared.</p>
+<p>Fitting a model with 10 predictors results in no significant P-values (less than 0.05).  We eliminate predictors to determine a model with better fit.  After eliminating predictors from the order of high P-values, we end up with a model with wt, qsec and am as significant predictors.  Here are the coefficient estimates and R-squared.</p>
 
 <pre><code>##              Estimate Std. Error   t value     Pr(&gt;|t|)
 ## wt          -3.916504  0.7112016 -5.506882 6.952711e-06
@@ -221,13 +221,16 @@ Consider the <code>mtcars</code> data set.  We&#39;ll start by looking at dimens
 <pre><code>## [1] 0.9879446
 </code></pre>
 
-<p>To determine if I should include any interaction term, I check for correlation between Transmission (am) and each regressors.</p>
+<p>Usint this model to answer the first question, &ldquo;Is an automatic or manual transmission better for MPG?&rdquo;, compare the coefficients of <code>factor(am)</code>. Factor(am)=1 for manual transmission is 2.936 mpg more efficient than automatic transmission.  Clearly, manual transmission is better for MPG.
+To determine if I should include any interaction term, I check for correlation between transmission and each predictors.</p>
 
 <pre><code>##            wt       qsec
 ## am -0.6924953 -0.2298609
 </code></pre>
 
-<p>Weight (wt) has -0.69 correlation to Transmission (am).  This means that there is a negative correlation, so I include the interaction term am*wt.  Here&#39;s the coefficient estimates and R-squared.</p>
+<p>Weight (wt) has -0.69 correlation to Transmission (am).  This means that there is a negative correlation, so I include the interaction term <code>am*wt</code>.<br/>
+&frac14; mile time (qsec) does not show a correlation.
+Here are the coefficient estimates and R-squared.</p>
 
 <pre><code>##                 Estimate Std. Error   t value     Pr(&gt;|t|)
 ## wt             -2.936531  0.6660253 -4.409038 0.0001488947
@@ -240,7 +243,17 @@ Consider the <code>mtcars</code> data set.  We&#39;ll start by looking at dimens
 <pre><code>## [1] 0.9916484
 </code></pre>
 
-<p>Using this model to answer the first question, &ldquo;Is an automatic or manual transmission better for MPG?&rdquo;, compare the coefficients of factor(am)0 and factor(am)1.  Factor(am)0 is a factor for automatic transmission with coefficent = 9.723.  This means that for automatic transmission, your MPG gain is 9.723mpg.  Factor(am)1 is a factor for manual transmission with coeficcient = 23.801.  This means that for manual transmission, your MPG gain is 23.801mpg.  Clearly, manual transmission is better for MPG by a difference of 14.078mpg.</p>
+<p>Inclusion of interaction term <code>wt*am</code> changes the interpretation.  For <code>am=0</code>, model is <code>9.72 - 2.94wt + 1.02qsec</code>.  For <code>am=1</code>, model is <code>-2.94wt + 1.017qsec + (23.80 - 4.14wt)*am</code>.  Since <code>am=1</code> is interacted with wt, change in mpg is also dependent on wt in the term <code>(23.80 - 4.14wt)*am</code>.  Other variables weight decreases mpg by 2.94 and &frac14; mile time increases mpg by 1.02.</p>
+
+<p>We can look at the uncertainty in parameters.  We have 95% confidence that parameters are within each interval.</p>
+
+<pre><code>##                     2.5 %    97.5 %
+## wt             -4.3031019 -1.569960
+## qsec            0.4998811  1.534066
+## factor(am)0    -2.3807791 21.826884
+## factor(am)1    11.3338666 36.271094
+## wt:factor(am)1 -6.5970316 -1.685721
+</code></pre>
 
 <p>##Residuals Diagnostics:
 Residuals should be uncorrelated with the fit and independent and nearly identically distributed with mean zero.  We&#39;ll look at the plot of residuals against fitted values.  We see a few outliers that may be influential.    (Appendix: Figure 1)</p>
@@ -260,16 +273,7 @@ Residuals should be uncorrelated with the fit and independent and nearly identic
 ## Mazda RX4 Wag 0.003 0.009      -0.008      -0.016          0.025
 </code></pre>
 
-<p>##Conclusion:
-Finally, we look at the uncertainty in parameters.  We have 95% confidence that parameters are within the interval.</p>
-
-<pre><code>##                     2.5 %    97.5 %
-## wt             -4.3031019 -1.569960
-## qsec            0.4998811  1.534066
-## factor(am)0    -2.3807791 21.826884
-## factor(am)1    11.3338666 36.271094
-## wt:factor(am)1 -6.5970316 -1.685721
-</code></pre>
+<p>\pagebreak</p>
 
 <p>##Appendix:</p>
 

@@ -1,7 +1,7 @@
 ---
 title: "Regression Analysis on MPG and Transmission"
 author: "Yosuke Ishizaka"
-output: html_document
+output: pdf_document
 ---
 ##Executive Summary:
 The goal of this project is to answer some questions using regression models and exploratory data analyses.  We are particularly interested in answering the following questions:
@@ -10,7 +10,7 @@ The goal of this project is to answer some questions using regression models and
 
 * Quantify the MPG difference between automatic and manual transmissions.
 
-We are going to use the `mtcars` data set to answer the questions.
+In this analysis, we've determined that manual transmission achieves higher MPG.
 
 ##Exploratory Data Analyses:
 Consider the `mtcars` data set.  We'll start by looking at dimensions and variable names.
@@ -34,7 +34,7 @@ Look at the first 6 rows of data set.
 ## Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2
 ## Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1
 ```
-There exists 32 rows of car models with 11 variables.  In our analysis, we'll fit a linear model with MPG as the outcome and other 10 variables as the predictive variables. We'll start by fitting a model with all variables.
+There exists 32 rows of car models with 11 variables.  We'll fit a linear model with MPG as the outcome and all remaining variables as predictive variables.
 
 ```
 ##         Estimate Std. Error     t value   Pr(>|t|)
@@ -49,7 +49,7 @@ There exists 32 rows of car models with 11 variables.  In our analysis, we'll fi
 ## gear  1.05426253 1.34668717  0.78285629 0.44205756
 ## carb -0.26321386 0.81235653 -0.32401273 0.74898869
 ```
-Fitting a model with 10 predictive variables results in no significant P-values (less than 0.05).  We eliminate some regressors to determine a model with better fit.  After eliminating regressors from the order of high P-values, I end up with a model with wt, qsec and am as significant regressors.  Here's the coefficient estimates and R-squared.
+Fitting a model with 10 predictors results in no significant P-values (less than 0.05).  We eliminate predictors to determine a model with better fit.  After eliminating predictors from the order of high P-values, we end up with a model with wt, qsec and am as significant predictors.  Here are the coefficient estimates and R-squared.
 
 ```
 ##              Estimate Std. Error   t value     Pr(>|t|)
@@ -62,13 +62,16 @@ Fitting a model with 10 predictive variables results in no significant P-values 
 ```
 ## [1] 0.9879446
 ```
-To determine if I should include any interaction term, I check for correlation between Transmission (am) and each regressors.
+Usint this model to answer the first question, "Is an automatic or manual transmission better for MPG?", compare the coefficients of `factor(am)`. Factor(am)=1 for manual transmission is 2.936 mpg more efficient than automatic transmission.  Clearly, manual transmission is better for MPG.
+To determine if I should include any interaction term, I check for correlation between transmission and each predictors.
 
 ```
 ##            wt       qsec
 ## am -0.6924953 -0.2298609
 ```
-Weight (wt) has -0.69 correlation to Transmission (am).  This means that there is a negative correlation, so I include the interaction term am*wt.  Here's the coefficient estimates and R-squared.
+Weight (wt) has -0.69 correlation to Transmission (am).  This means that there is a negative correlation, so I include the interaction term `am*wt`.  
+1/4 mile time (qsec) does not show a correlation.
+Here are the coefficient estimates and R-squared.
 
 ```
 ##                 Estimate Std. Error   t value     Pr(>|t|)
@@ -82,7 +85,18 @@ Weight (wt) has -0.69 correlation to Transmission (am).  This means that there i
 ```
 ## [1] 0.9916484
 ```
-Using this model to answer the first question, "Is an automatic or manual transmission better for MPG?", compare the coefficients of factor(am)0 and factor(am)1.  Factor(am)0 is a factor for automatic transmission with coefficent = 9.723.  This means that for automatic transmission, your MPG gain is 9.723mpg.  Factor(am)1 is a factor for manual transmission with coeficcient = 23.801.  This means that for manual transmission, your MPG gain is 23.801mpg.  Clearly, manual transmission is better for MPG by a difference of 14.078mpg.
+Inclusion of interaction term `wt*am` changes the interpretation.  For `am=0`, model is `9.72 - 2.94wt + 1.02qsec`.  For `am=1`, model is `-2.94wt + 1.017qsec + (23.80 - 4.14wt)*am`.  Since `am=1` is interacted with wt, change in mpg is also dependent on wt in the term `(23.80 - 4.14wt)*am`.  Other variables weight decreases mpg by 2.94 and 1/4 mile time increases mpg by 1.02.
+
+We can look at the uncertainty in parameters.  We have 95% confidence that parameters are within each interval.
+
+```
+##                     2.5 %    97.5 %
+## wt             -4.3031019 -1.569960
+## qsec            0.4998811  1.534066
+## factor(am)0    -2.3807791 21.826884
+## factor(am)1    11.3338666 36.271094
+## wt:factor(am)1 -6.5970316 -1.685721
+```
 
 ##Residuals Diagnostics:
 Residuals should be uncorrelated with the fit and independent and nearly identically distributed with mean zero.  We'll look at the plot of residuals against fitted values.  We see a few outliers that may be influential.    (Appendix: Figure 1)
@@ -107,18 +121,7 @@ Next, we find influence of the outliers on coefficients.  Outliers are Datsun 71
 ## Mazda RX4     0.010 0.031      -0.028      -0.022         -0.034
 ## Mazda RX4 Wag 0.003 0.009      -0.008      -0.016          0.025
 ```
-
-##Conclusion:
-Finally, we look at the uncertainty in parameters.  We have 95% confidence that parameters are within the interval.
-
-```
-##                     2.5 %    97.5 %
-## wt             -4.3031019 -1.569960
-## qsec            0.4998811  1.534066
-## factor(am)0    -2.3807791 21.826884
-## factor(am)1    11.3338666 36.271094
-## wt:factor(am)1 -6.5970316 -1.685721
-```
+\pagebreak
 
 ##Appendix:
 
